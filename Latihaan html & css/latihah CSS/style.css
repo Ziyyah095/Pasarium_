@@ -1,0 +1,167 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+* {
+    font-family: dm sans;
+}
+.btn-utama {
+    background-color: #119DA4 !important;
+    color: white !important;
+}
+
+.btn-utama:hover {
+    box-shadow: 0 10px 10px rgb(139, 135, 135);
+    transform: scale(1.1);
+    transition: all 0.3s ease-in-out;
+}
+
+.text-link {
+color: #119DA4 !important;
+}
+.navbar {
+    background-color: rgb(254, 251, 251);
+    box-shadow: 0 10px 10px rgba(74, 53, 53, 0.20);
+}
+.navbar-brand img {
+    width: 50%;
+}
+
+.navbar-nav {
+    margin-left: auto;
+}
+
+#hero {
+    margin-top: 70px;
+}
+
+#hero h1 {
+    font-size: 60px;
+}
+
+#hero img {
+    width: 700px;
+}
+
+.card {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+}
+
+.card img {
+    width: 100%;
+    display: block;
+    border-radius: 10px;
+}
+
+.card text{
+    margin-bottom: 10px;
+
+}
+
+#layanan {
+    margin-top: 100px;
+}
+
+#layanan .card{
+    border: none;
+    border-radius: 10px;
+}
+#layanan .card-title {
+    position: absolute;
+    bottom: 10px;
+}
+
+#layanan .card:hover {
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    transform: scale(1.05);
+    transition: all 0.3s ease-in-out;
+}
+
+#profil img {
+    width: 600px;
+}
+
+#profil span {
+    letter-spacing: 10px;
+    text-transform: uppercase;
+}
+
+#profil h1 {
+    width: 90%;
+    text-align: justify;
+}
+
+#portofolio {
+    margin-top: 100px;
+}
+
+#portofolio.card {
+    border: none;
+    border-radius: 10px;
+}
+
+#cta {
+    margin-top: 100px;
+}
+
+#cta .bg{
+    background-image: url('././assets/bg-cta.png');
+    background-size: cover;
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
+
+.card-body {
+    width: 200px;
+    margin-left: 200px;
+}
+
+footer {
+    margin-top: 50px;
+    background-color: #119DA4;
+    padding: 30px;
+    text-align: center;
+    color: white;
+}
+
+@media (max-width : 992px) {
+    #hero {
+        text-align: center;
+    }
+    #hero h1 {
+        font-size: 40px;
+    }
+    #hero img {
+        margin-top: 30px;
+    }
+    #layanan img {
+        margin-top: 30px;
+    }
+    #layanan .card {
+        background-color: white;
+    }
+    #profil {
+        text-align: center;
+    }
+    #profil h1 {
+        font-size: 40px;
+     }
+     #profil p {
+        width: 100%;
+     }
+     #portofolio .card {
+        margin-top: 20px;
+     }
+     #cta .bg {
+        height: 400px;
+        padding: 20px;
+     }
+     #cta p {
+        font-size: 16px;
+     }
+     footer {
+        color: white;
+        font-size: 14px;
+     }
+}
