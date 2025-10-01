@@ -13,7 +13,7 @@ body {
 
 /* Navbar */
 .navbar {
-  background: #0056b3;
+  background: #f57cd4;
   color: #fff;
   padding: 15px 30px;
   display: flex;
@@ -37,17 +37,17 @@ body {
   grid-template-columns: 1fr 1fr;
   padding: 40px;
   align-items: center;
-  background: #eaf2ff;
+  background: #f4bbef;
 }
 .header-text h1 {
-  color: #003366;
+  color: #fcf5fa;
   margin-bottom: 15px;
 }
 .header-text p {
   margin-bottom: 20px;
 }
 .btn {
-  background: #0056b3;
+  background: #dc097a;
   color: #fff;
   padding: 10px 20px;
   text-decoration: none;
@@ -64,7 +64,7 @@ body {
   text-align: center;
 }
 .about h2 {
-  color: #0056b3;
+  color: #f9a6e1;
   margin-bottom: 10px;
 }
 .biodata {
@@ -78,7 +78,7 @@ body {
     padding: 15px;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    border:1px solid #ddd; /*biar mirip tabel*/
+    border:1px solid #f9dff3; /*biar mirip tabel*/
 }
  
 /* Biar responsive di HP */
@@ -93,7 +93,7 @@ body {
   text-align: center;
 }
 .portfolio h2 {
-  color: #0056b3;
+  color: #f3a6ec;
   margin-bottom: 20px;
 }
 .portfolio-grid {

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Daftar Bunga</title>
+  <a href="pages/detail.html?nama=Rose">Klik di sini</a>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #faf5f4; color: #3b2b3b; }
+    table { width: 100%; border-collapse: collapse; background: white; }
+    th, td { padding: 10px 12px; border: 1px solid #ddd; }
+    th { background: #eec7d7; }
+    tr:hover { background: #fcebef; }
+    a { color: #8a2c69; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <h1>Daftar Bunga</h1>
+  <table>
+    <thead>
+      <tr><th>Nama Bunga</th><th>Aksi</th></tr>
+    </thead>
+    <tbody id="tb"></tbody>
+  </table>
+
+  <script>
+    // fallback data bunga
+    const bungaData = [
+      {
+        name: "Rafflesia arnoldii",
+        scientificName: "Rafflesia arnoldii",
+        origin: "Sumatra & Borneo (Asia Tenggara)",
+        habitat: "Hutan hujan tropis",
+        funfact: "Salah satu bunga terbesar, parasit, bau bangkai.",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/0/01/Rafflesia_arnoldii_in_Bukit_Baron.jpg"
+      },
+      {
+        name: "Rose",
+        scientificName: "Rosa",
+        origin: "Asia & Eropa",
+        habitat: "Semak / kebun",
+        funfact: "Banyak varietas & warna, digunakan untuk parfum dan dekorasi.",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/3/35/Rose_flower.jpg"
+      },
+      {
+        name: "Lotus",
+        scientificName: "Nelumbo nucifera",
+        origin: "Asia",
+        habitat: "Air tawar (kolam/ rawa)",
+        funfact: "Daunnya bersifat hidrofobik (lotus effect).",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/9/91/Nelumbo_nucifera_flower.jpg"
+      }
+      // bisa tambah data bunga lainnya di sini
+    ];
+
+    const tb = document.getElementById('tb');
+    bungaData.forEach((b, i) => {
+      const tr = document.createElement('tr');
+      const nameCell = `<td>${b.name}</td>`;
+      const link = `detail.html?nama=${encodeURIComponent(b.name)}`;
+      const aksiCell = `<td><a href="${link}">Klik di sini</a></td>`;
+      tr.innerHTML = nameCell + aksiCell;
+      tb.appendChild(tr);
+    });
+  </script>
+</body>
+</html>

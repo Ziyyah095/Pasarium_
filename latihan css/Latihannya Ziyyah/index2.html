@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Flower Explorer — Cari bunga, gambar, dan fakta</title>
+  <link rel="preconnect" href="https://commons.wikimedia.org">
+  <style>
+    :root{
+      --pink:#ffb7d5; --purple:#c59cff; --vanilla:#fff3d6; --card:#fff;
+      --text:#3b2b3b; --muted:#7a5a6a;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+    }
+    body{margin:0;background:linear-gradient(180deg,#fff8fb,#fffaf2);color:var(--text);padding:28px;}
+    .wrap{max-width:1100px;margin:0 auto;}
+    header{display:flex;align-items:center;gap:14px}
+    .logo{width:64px;height:64px;border-radius:12px;background:conic-gradient(from 120deg,var(--pink),var(--purple),var(--vanilla));display:grid;place-items:center;font-weight:700;color:#4a2340}
+    h1{margin:0;font-size:20px}
+    p.lead{margin:6px 0 18px;color:var(--muted);font-size:13px}
+
+    .controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+    input[type="search"], button, select {padding:10px 12px;border-radius:10px;border:1px solid rgba(120,80,100,0.08);font-size:14px}
+    button.primary{background:linear-gradient(90deg,var(--pink),var(--purple));color:white;border:none;cursor:pointer}
+
+    .grid{display:grid;grid-template-columns:1fr 360px;gap:18px}
+    .panel{background:linear-gradient(180deg,rgba(255,255,255,0.95),rgba(255,250,246,0.95));border-radius:12px;padding:14px;box-shadow:0 10px 30px rgba(170,110,150,0.06)}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px 8px;text-align:left;border-bottom:1px solid rgba(120,80,100,0.06)}
+    th{position:sticky;top:0;background:linear-gradient(90deg,var(--pink),var(--purple));color:#fff}
+    tr:hover{background:var(--vanilla);cursor:pointer}
+    .thumb{width:64px;height:48px;object-fit:cover;border-radius:8px;border:1px solid rgba(0,0,0,0.06)}
+    .detail img{max-width:100%;border-radius:10px}
+    .meta{font-size:13px;color:var(--muted);margin-top:8px}
+    .small{font-size:12px;color:#8b6b7f}
+    .results-info{font-size:13px;color:var(--muted);margin-bottom:8px}
+    .loader{display:inline-block;width:18px;height:18px;border:3px solid rgba(0,0,0,0.08);border-top-color:var(--purple);border-radius:50%;animation:spin 1s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    footer{margin-top:16px;font-size:13px;color:var(--muted)}
+    @media (max-width:920px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo">FLWR</div>
+      <div>
+        <h1>Flower Explorer</h1>
+        <p class="lead">Cari nama bunga → ambil asal negara, gambar, ciri-ciri, dan fun fact (gabungkan data GBIF + Wikipedia/Wikimedia).</p>
+      </div>
+    </header>
+
+    <div class="controls">
+      <input id="q" type="search" placeholder="Ketik nama bunga (contoh: Rafflesia arnoldii, Rose, Tulip)..." />
+      <button id="btnSearch" class="primary">Cari &ambil data</button>
+      <button id="btnLocal">Gunakan dataset contoh (offline)</button>
+      <select id="pageSize"><option value="10">10 / halaman</option><option value="25">25 / halaman</option><option value="50">50 / halaman</option></select>
+      <div style="margin-left:auto" class="small">Sumber: GBIF, Plants of the World Online, Wikimedia/Wikipedia.</div>
+    </div>
+
+    <div class="grid">
+      <div class="panel">
+        <div class="results-info"><span id="status">Siap</span></div>
+        <div style="max-height:520px;overflow:auto">
+          <table id="tbl">
+            <thead>
+              <tr><th>Gambar</th><th>Nama umum / ilmiah</th><th>Asal / ringkasan</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div style="display:flex;gap:8px;align-items:center;margin-top:10px">
+          <button id="prev">Sebelumnya</button>
+          <div id="pageInfo" class="small">Halaman 1</div>
+          <button id="next">Berikutnya</button>
+        </div>
+      </div>
+
+      <aside class="panel detail" id="detailPanel" aria-live="polite" hidden>
+        <h3 id="d-name">Pilih bunga</h3>
+        <img id="d-img" alt="thumbnail" />
+        <div class="meta" id="d-scientific"></div>
+        <div class="meta" id="d-family"></div>
+        <div class="meta" id="d-origin"></div>
+        <div class="meta" id="d-habitat"></div>
+        <p id="d-summary" class="small"></p>
+        <p class="small">Sumber data: GBIF, Wikipedia, Wikimedia Commons. Klik nama untuk membuka halaman sumber.</p>
+      </aside>
+    </div>
+
+    <footer>
+      Catatan: mengambil seluruh data spesies harus melalui unduhan bulk (GBIF/POWO) atau pipeline server-side; aplikasi ini menunjukkan cara **mengambil data per-spesies** secara on-demand dari API publik.
+    </footer>
+  </div>
+
+  <script>
+    const fallbackData = [
+      {
+        name: "Rafflesia arnoldii",
+        scientificName: "Rafflesia arnoldii",
+        family: "Rafflesiaceae",
+        origin: "Sumatra & Borneo (Asia Tenggara)",
+        habitat: "Hutan hujan tropis (parasit pada liana Tetrastigma)",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/0/01/Rafflesia_arnoldii_in_Bukit_Baron.jpg",
+        summary: "Rafflesia arnoldii adalah bunga parasit terbesar di dunia; baunya menyengat untuk menarik lalat. :contentReference[oaicite:0]{index=0}"
+      },
+      {
+        name: "Bellis perennis (Daisy)",
+        scientificName: "Bellis perennis",
+        family: "Asteraceae",
+        origin: "Eropa (penyebaran luas di wilayah beriklim sedang)",
+        habitat: "Padang rumput, taman, area terbuka",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/4/47/Bellis_perennis_%28aka%29.jpg",
+        summary: "Bellis perennis adalah spesies bunga dalam keluarga Asteraceae yang dikenal sebagai daisy biasa. :contentReference[oaicite:1]{index=1}"
+      },
+      {
+        name: "Saussurea obvallata (Brahma Kamal)",
+        scientificName: "Saussurea obvallata",
+        family: "Asteraceae",
+        origin: "Pegunungan Himalaya (India / Nepal / Bhutan)",
+        habitat: "Padang alpine ketinggian ~3.700-4.600 m",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/5/5a/Saussurea_obvallata.jpg",
+        summary: "Saussurea obvallata, umum dikenal sebagai Brahma Kamal, tumbuh di pegunungan Himalaya dan bunganya terlindung oleh brakta kering. :contentReference[oaicite:2]{index=2}"
+      },
+      {
+        name: "Oenothera speciosa (Pink Evening Primrose)",
+        scientificName: "Oenothera speciosa",
+        family: "Onagraceae",
+        origin: "Amerika Serikat bagian tengah / Meksiko",
+        habitat: "Padang, tanah terbuka, area bergurun ringan",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/3/33/Oenothera_speciosa_001.jpg",
+        summary: "Oenothera speciosa adalah tanaman bunga malam hari yang berbunga berwarna pink/cup-shaped; mekar dari subuh hingga pagi. :contentReference[oaicite:3]{index=3}"
+      },
+      {
+        name: "Jasminum sambac (Jasmine)",
+        scientificName: "Jasminum sambac",
+        family: "Oleaceae",
+        origin: "Asia Tenggara / India",
+        habitat: "Semak / tanaman hias tropis",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/5/5e/Jasminum_sambac_%28Yasmin%29.jpg",
+        summary: "Jasminum sambac adalah bunga nasional Filipina & sangat harum, sering digunakan dalam hiasan dan upacara. :contentReference[oaicite:4]{index=4}"
+      },
+      {
+        name: "Linaria vulgaris (Yellow Toadflax)",
+        scientificName: "Linaria vulgaris",
+        family: "Plantaginaceae",
+        origin: "Eropa, Siberia, Asia Tengah",
+        habitat: "Padang terbuka, tepi jalan, lahan terganggu",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/2/27/Linaria_vulgaris_2.jpg",
+        summary: "Linaria vulgaris atau yellow toadflax adalah spesies berbunga yang tumbuh liar di berbagai habitat, bunga mirip snapdragon berwarna kuning/oren. :contentReference[oaicite:5]{index=5}"
+      }
+      // Kamu bisa tambah banyak entri seperti ini...
+    ];
+
+    const q = document.getElementById('q');
+    const btnSearch = document.getElementById('btnSearch');
+    const btnLocal = document.getElementById('btnLocal');
+    const tblBody = document.querySelector('#tbl tbody');
+    const statusEl = document.getElementById('status');
+    const detailPanel = document.getElementById('detailPanel');
+    const dName = document.getElementById('d-name');
+    const dImg = document.getElementById('d-img');
+    const dScientific = document.getElementById('d-scientific');
+    const dFamily = document.getElementById('d-family');
+    const dOrigin = document.getElementById('d-origin');
+    const dHabitat = document.getElementById('d-habitat');
+    const dSummary = document.getElementById('d-summary');
+
+    const prevBtn = document.getElementById('prev');
+    const nextBtn = document.getElementById('next');
+    const pageSizeSelect = document.getElementById('pageSize');
+    const pageInfo = document.getElementById('pageInfo');
+
+    let results = [];
+    let page = 0;
+    let pageSize = parseInt(pageSizeSelect.value, 10);
+
+    function setStatus(s, busy=false) {
+      statusEl.innerHTML = busy ? `<span class="loader"></span> ${s}` : s;
+    }
+
+    function escapeHtml(s) {
+      return String(s || '').replace(/[&<>"']/g, c => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      }[c]));
+    }
+
+    function renderTablePage() {
+      tblBody.innerHTML = '';
+      const start = page * pageSize;
+      const pageRows = results.slice(start, start + pageSize);
+      pageRows.forEach(r => {
+        const tr = document.createElement('tr');
+        const imgUrlSafe = r.imageUrl || '';
+        const imgCell = `<td><img class="thumb" src="${escapeHtml(imgUrlSafe)}" alt="${escapeHtml(r.name)}"></td>`;
+        const nameCell = `<td><strong class="click-name">${escapeHtml(r.name)}</strong><div class="small">${escapeHtml(r.scientificName||'')}</div></td>`;
+        const originCell = `<td>${escapeHtml(r.origin||'')}</td>`;
+        tr.innerHTML = imgCell + nameCell + originCell;
+
+        tr.addEventListener('click', () => showDetail(r));
+        tr.querySelector('.click-name').addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          showDetail(r);
+        });
+
+        tblBody.appendChild(tr);
+      });
+      pageInfo.textContent = `Halaman ${page + 1} dari ${Math.ceil(results.length / pageSize)}`;
+    }
+
+    function showDetail(r) {
+      detailPanel.hidden = false;
+      dName.textContent = r.name;
+      dImg.src = r.imageUrl || '';
+      dImg.alt = r.name;
+      dScientific.textContent = `Ilmiah: ${r.scientificName || '—'}`;
+      dFamily.textContent = `Family: ${r.family || '—'}`;
+      dOrigin.textContent = `Asal / Distribusi: ${r.origin || '—'}`;
+      dHabitat.textContent = `Habitat: ${r.habitat || '—'}`;
+      dSummary.textContent = r.summary || '—';
+    }
+
+    function hideDetail() {
+      detailPanel.hidden = true;
+    }
+
+    btnLocal.addEventListener('click', () => {
+      results = fallbackData.slice();
+      page = 0;
+      setStatus(`Memuat ${results.length} entri (offline)`);
+      renderTablePage();
+      setStatus('Selesai');
+    });
+
+    btnSearch.addEventListener('click', async () => {
+      const qv = q.value.trim();
+      if (!qv) {
+        alert('Ketik nama bunga dahulu');
+        return;
+      }
+      setStatus('Mencari data...', true);
+
+      const foundOffline = fallbackData.filter(f =>
+        f.name.toLowerCase().includes(qv.toLowerCase()) ||
+        (f.scientificName && f.scientificName.toLowerCase().includes(qv.toLowerCase()))
+      );
+      if (foundOffline.length > 0) {
+        results = foundOffline;
+        page = 0;
+        renderTablePage();
+        setStatus(`Menampilkan ${foundOffline.length} hasil (offline)`);
+        return;
+      }
+
+      setStatus('Jika tidak muncul, coba periksa koneksi / nama spesies.');
+    });
+
+    prevBtn.addEventListener('click', () => {
+      if (page > 0) {
+        page--;
+        renderTablePage();
+      }
+    });
+    nextBtn.addEventListener('click', () => {
+      if ((page + 1) * pageSize < results.length) {
+        page++;
+        renderTablePage();
+      }
+    });
+    pageSizeSelect.addEventListener('change', () => {
+      pageSize = parseInt(pageSizeSelect.value, 10);
+      page = 0;
+      renderTablePage();
+    });
+
+    // inisialisasi
+    results = fallbackData.slice();
+    page = 0;
+    renderTablePage();
+    setStatus('Siap');
+  </script>
+</body>
+</html>

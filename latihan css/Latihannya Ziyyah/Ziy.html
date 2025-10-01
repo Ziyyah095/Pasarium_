@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Daftar Bunga Dunia — Cari & Fakta</title>
+  <style>
+    :root {
+      --pink: #ffb7d5;
+      --purple: #c59cff;
+      --vanilla: #fff3d6;
+      --bg: #fff8f5;
+      --text: #4a2f3f;
+      --card-bg: rgba(255, 255, 255, 0.95);
+    }
+    body {
+      margin: 0;
+      padding: 20px;
+      background: var(--bg);
+      font-family: sans-serif;
+      color: var(--text);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .search-container {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    input[type="text"] {
+      width: 60%;
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    .table-wrap {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background: linear-gradient(90deg, var(--pink), var(--purple));
+      color: white;
+      position: sticky;
+      top: 0;
+    }
+    tr:hover {
+      background-color: var(--vanilla);
+      cursor: pointer;
+    }
+    /* Detail popup */
+    .detail {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      max-width: 400px;
+      z-index: 1000;
+      display: none;
+    }
+    .detail.show {
+      display: block;
+    }
+    .detail h2 {
+      margin-top: 0;
+    }
+    .detail button {
+      margin-top: 12px;
+      padding: 8px 14px;
+      background: var(--purple);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.3);
+      z-index: 900;
+      display: none;
+    }
+    .overlay.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <h1>Daftar Bunga Dunia</h1>
+  <div class="search-container">
+    <input id="searchBox" type="text" placeholder="Cari nama bunga..." />
+  </div>
+  <div class="table-wrap">
+    <table id="flowerTable">
+      <thead>
+        <tr>
+          <th>Nama Bunga</th>
+          <th>Asal / Wilayah</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- diisi oleh JS -->
+      </tbody>
+    </table>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+  <div class="detail" id="detailCard">
+    <h2 id="detailName">Nama Bunga</h2>
+    <p><strong>Asal / Wilayah:</strong> <span id="detailOrigin"></span></p>
+    <p><strong>Fun Fact:</strong> <span id="detailFunFact"></span></p>
+    <button id="btnClose">Tutup</button>
+  </div>
+
+  <script>
+    const flowers = [
+      { name: 'Rose', origin: 'Asia / Eropa (beriklim sedang)', funfact: 'Ma war memiliki hubungan genetik dengan apel, ceri, dan almond. :contentReference[oaicite:0]{index=0}' },
+      { name: 'Tulip', origin: 'Asia Tengah / Persia', funfact: 'Tulip pernah memiliki nilai lebih tinggi dari emas di Belanda (Tulip Mania). :contentReference[oaicite:1]{index=1}' },
+      { name: 'Orchid', origin: 'Asia tropis & dunia (beragam)', funfact: 'Anggrek tidak memerlukan tanah: akarnya bisa menyerap kelembapan udara. :contentReference[oaicite:2]{index=2}' },
+      { name: 'Chrysanthemum', origin: 'China / Asia Timur', funfact: 'Chrysanthemum dibudidayakan di China lebih dari 3000 tahun lalu. :contentReference[oaicite:3]{index=3}' },
+      { name: 'Lotus', origin: 'Asia tropis & subtropis', funfact: 'Lotus dianggap suci di Mesir kuno dan melambangkan kebangkitan. :contentReference[oaicite:4]{index=4}' },
+      { name: 'Sunflower', origin: 'Amerika Utara', funfact: 'Bunga matahari mengikuti pergerakan matahari sepanjang hari. :contentReference[oaicite:5]{index=5}' },
+      { name: 'Lily', origin: 'Belahan Utara (zona temperate)', funfact: 'Ada lebih dari 100 spesies “true lilies” di genus Lilium. :contentReference[oaicite:6]{index=6}' },
+      { name: 'Jasmine', origin: 'Asia / Mediterania / Afrika', funfact: 'Jasminum sambac (sampaguita) adalah bunga nasional Filipina. :contentReference[oaicite:7]{index=7}' },
+      { name: 'Rhododendron', origin: 'Asia / Eropa / Amerika Utara', funfact: 'Rhododendron arboreum adalah bunga nasional Nepal. :contentReference[oaicite:8]{index=8}' },
+      { name: 'Hibiscus', origin: 'Asia / Kepulauan Pasifik', funfact: 'Hibiscus × rosa-sinensis adalah bunga nasional Malaysia. :contentReference[oaicite:9]{index=9}' },
+      { name: 'Dahlia', origin: 'Meksiko / Amerika Tengah', funfact: 'Dahlia memiliki lebih dari 20.000 kultivar dan awalnya diklasifikasikan sebagai sayuran. :contentReference[oaicite:10]{index=10}' },
+      { name: 'Iris', origin: 'Eropa / Asia / Afrika Utara / Amerika Utara', funfact: 'Iris tumbuh dari rizoma atau umbi, dan akar beberapa spesies dipakai dalam parfum. :contentReference[oaicite:11]{index=11}' },
+      { name: 'Daffodil (Narcissus)', origin: 'Eropa Mediterania', funfact: 'Daffodil adalah bunga nasional Wales dan dipakai sebagai simbol di perayaan anniversari ke-10. :contentReference[oaicite:12]{index=12}' },
+      { name: 'Hydrangea', origin: 'Asia / Amerika Serikat timur', funfact: 'Warna hydrangea tergantung keasaman tanah — semakin asam, bunga bisa lebih biru; kurang asam, lebih pink. :contentReference[oaicite:13]{index=13}' },
+      { name: 'Snapdragon', origin: 'Eropa / Mediterania', funfact: 'Buah snapdragon setelah mekar menyerupai tengkorak kecil. :contentReference[oaicite:14]{index=14}' },
+      { name: 'Marigold', origin: 'Amerika Tengah / Amerika Selatan', funfact: 'Penduduk Aztec menanam marigold untuk keperluan obat dan ritual; dikatakan bisa meredakan cegukan. :contentReference[oaicite:15]{index=15}' },
+      { name: 'Morning Glory', origin: 'Amerika Tengah / Selatan', funfact: 'Morning glory awalnya dipakai suku Aztec dalam ritual ramalan. :contentReference[oaicite:16]{index=16}' },
+      { name: 'Zinnia', origin: 'Amerika Tengah / Meksiko', funfact: 'Zinnia dulu dianggap “keras di mata” orang transformasi estetika. :contentReference[oaicite:17]{index=17}' },
+      { name: 'Moonflower', origin: 'Amerika tropis', funfact: 'Moonflower hanya mekar di malam hari dan menutup di siang hari. :contentReference[oaicite:18]{index=18}' },
+      { name: 'Lotus (Rafflesia juga bisa dimasukkan)', origin: 'Asia Tenggara', funfact: 'Rafflesia arnoldii adalah salah satu bunga terbesar di dunia; baunya menyengat seperti daging busuk. :contentReference[oaicite:19]{index=19}' }
+    ];
+
+    const tbody = document.querySelector('#flowerTable tbody');
+    const searchBox = document.getElementById('searchBox');
+    const detailCard = document.getElementById('detailCard');
+    const overlay = document.getElementById('overlay');
+    const detailName = document.getElementById('detailName');
+    const detailOrigin = document.getElementById('detailOrigin');
+    const detailFunFact = document.getElementById('detailFunFact');
+    const btnClose = document.getElementById('btnClose');
+
+    function renderTable(list) {
+      tbody.innerHTML = '';
+      list.forEach((f, idx) => {
+        const tr = document.createElement('tr');
+        tr.dataset.idx = idx;
+        tr.innerHTML = `
+          <td>${f.name}</td>
+          <td>${f.origin}</td>
+        `;
+        tr.addEventListener('click', () => {
+          showDetail(f);
+        });
+        tbody.appendChild(tr);
+      });
+    }
+
+    function showDetail(flower) {
+      detailName.textContent = flower.name;
+      detailOrigin.textContent = flower.origin;
+      detailFunFact.textContent = flower.funfact;
+      detailCard.classList.add('show');
+      overlay.classList.add('show');
+    }
+
+    function hideDetail() {
+      detailCard.classList.remove('show');
+      overlay.classList.remove('show');
+    }
+
+    btnClose.addEventListener('click', hideDetail);
+    overlay.addEventListener('click', hideDetail);
+
+    searchBox.addEventListener('input', () => {
+      const q = searchBox.value.trim().toLowerCase();
+      if (!q) {
+        renderTable(flowers);
+        return;
+      }
+      const filtered = flowers.filter(f =>
+        f.name.toLowerCase().includes(q)
+      );
+      renderTable(filtered);
+    });
+
+    // Inisialisasi
+    renderTable(flowers);
+  </script>
+</body>
+</html>

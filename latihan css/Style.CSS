@@ -1,0 +1,40 @@
+body {
+    background-color: rgb(109, 109, 219);
+    text-align: center;
+}
+
+#hero {
+    background: url(Parfum.jpg)no-repeat center center/cover;
+    color: aliceblue;
+    margin: 30px;
+    padding: 10px;
+    border-radius: 20px;
+}
+
+.deskripsi {
+    background: color(srgb red green blue);
+    padding: 10px;
+}
+
+.deskripsi h1 {
+    font-size: 20px;
+    color: aqua;
+}
+
+.deskripsi p {
+    font-size: 20px;
+    color: blue;
+
+}
+.btn {
+    text-decoration: none;
+    background-color: blue;
+    color: rgb(123, 176, 224);
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight:bold;
+    transition: 0.3s;
+}
+.btn:hover {
+    background-color: black;
+}
